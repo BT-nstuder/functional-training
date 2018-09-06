@@ -44,6 +44,7 @@
                 </tree>
             </field>
         </record>
+
         <!--window action-->
         <!--The following tag is an action definition for a "window action",
             that is an action opening a view or a set of views-->
@@ -83,6 +84,19 @@
                 </form>
             </field>
         </record>
+
+        <!--session tree/list view-->
+        <record id="session_tree_view" model="ir.ui.view">
+            <field name="name">session.tree</field>
+            <field name="model">openacademy.session</field>
+            <field name="arch" type="xml">
+                <tree string="Session Tree">
+                    <field name="name" />
+                    <field name="course_id" />
+                </tree>
+            </field>
+        </record>
+
         <!--window action-->
         <record id="session_list_action" model="ir.actions.act_window">
             <field name="name">Sessions</field>
