@@ -13,7 +13,7 @@
     'version': '11.0.0.0.1',
     'depends': ['base'],
     'data': [
-        'views/views.xml',
+        'views/openacademy.xml',
         'views/templates.xml',
     ],
     'demo': [
