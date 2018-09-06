@@ -9,6 +9,7 @@ class Course(models.Model):
     # 3. Fields Declaration
     name = fields.Char(string="Title", required=True)
     description = fields.Text()
+    responsible_id = fields.Many2one('res.users', ondelete='set null', string="Responsible", index=True)
 
     # 4. Compute and search fields, in the same order that fields declaration
 
