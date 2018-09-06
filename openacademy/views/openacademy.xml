@@ -60,7 +60,7 @@
             <field name="name">Courses</field>
             <field name="res_model">openacademy.course</field>
             <field name="view_type">form</field>
-            <field name="view_mode">tree, form</field>
+            <field name="view_mode">tree,form</field>
             <field name="help" type="html">
                 <p class="oe_view_nocontent_create">Create the first course</p>
             </field>
@@ -116,7 +116,7 @@
             <field name="name">Sessions</field>
             <field name="res_model">openacademy.session</field>
             <field name="view_type">form</field>
-            <field name="view_mode">tree, form</field>
+            <field name="view_mode">tree,form</field>
         </record>
 
         <menuitem id="session_menu" name="Sessions" parent="openacademy_menu" action="session_list_action" />
