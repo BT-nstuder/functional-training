@@ -16,6 +16,12 @@
                             <page string="About">
                                 This is an example of notebooks.
                             </page>
+                            <page string="Sessions">
+                                <tree string="Registered sessions">
+                                    <field name="name" />
+                                    <field name="instructor_id" />
+                                </tree>
+                            </page>
                         </notebook>
                     </sheet>
                 </form>
