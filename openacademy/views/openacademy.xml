@@ -65,37 +65,31 @@
             and after its action course_list_action-->
         <menuitem id="courses_menu" name="Courses" parent="openacademy_menu" action="course_list_action" />
 
-    <!-- server action to the one above -->
-    <!--
-    <record model="ir.actions.server" id="openacademy.action_server">
-      <field name="name">openacademy server</field>
-      <field name="model_id" ref="model_openacademy_openacademy"/>
-      <field name="state">code</field>
-      <field name="code">
-        action = {
-          "type": "ir.actions.act_window",
-          "view_mode": "tree,form",
-          "res_model": self._name,
-        }
-      </field>
-    </record>
-    -->
 
-    <!-- Top menu item -->
-    <!--
-    <menuitem name="openacademy" id="openacademy.menu_root"/>
-    -->
-    <!-- menu categories -->
-    <!--
-    <menuitem name="Menu 1" id="openacademy.menu_1" parent="openacademy.menu_root"/>
-    <menuitem name="Menu 2" id="openacademy.menu_2" parent="openacademy.menu_root"/>
-    -->
-    <!-- actions -->
-    <!--
-    <menuitem name="List" id="openacademy.menu_1_list" parent="openacademy.menu_1"
-              action="openacademy.action_window"/>
-    <menuitem name="Server to list" id="openacademy" parent="openacademy.menu_2"
-              action="openacademy.action_server"/>
-    -->
-  </data>
+        <!--session form view-->
+        <record id="session_form_view" model="ir.ui.view">
+            <field name="name">session.form</field>
+            <field name="model">openacademy.session</field>
+            <field name="arch" type="xml">
+                <form string="Session Form">
+                    <sheet>
+                        <group>
+                            <field name="name" />
+                            <field name="start_date" />
+                            <field name="duration"/>
+                            <field name="seats" />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!--window action-->
+        <record id="session_list_action" model="ir.actions.act_window">
+            <field name="name">Sessions</field>
+            <field name="res_model">openacademy.session</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree, form</field>
+        </record>
+
+        <menuitem id="session_menu" name="Sessions" parent="openacademy_menu" action="session_list_action" />
 </odoo>
