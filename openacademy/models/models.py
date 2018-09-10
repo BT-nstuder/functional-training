@@ -21,7 +21,7 @@ class Course(models.Model):
         if not copied_count:
             new_name = "Copy of %s" % self.name
         else:
-            new_name = "Copy of $s ($r)" % (self.name, copied_count)
+            new_name = "Copy of %s (%r)" % (self.name, copied_count)
 
         default['name'] = new_name
         return super(Course, self).copy(default)
