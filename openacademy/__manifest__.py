@@ -19,5 +19,5 @@
     'demo': [
         'demo/demo.xml',
     ],
-    'license': 'LGPL',
+    'license': 'LGPL-3',
 }
