@@ -13,7 +13,18 @@ class Course(models.Model):
     session_ids = fields.One2many('openacademy.session', 'course_id', string="Sessions")
 
     # 4. Compute and search fields, in the same order that fields declaration
+    @api.multi
+    def copy(self, default=None):
+        default = dict(default or {})
 
+        copied_count = self.search_count([('name', '=like', "Copy of %s" % self.name)])
+        if not copied_count:
+            new_name = "Copy of %s" % self.name
+        else:
+            new_name = "Copy of $s ($r)" % (self.name, copied_count)
+
+        default['name'] = new_name
+        return super(Course, self).copy(default)
     # 5. Constraints and onchange methods
     _sql_constraints = [
         ('name_description_check',
