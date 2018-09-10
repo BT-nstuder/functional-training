@@ -15,7 +15,15 @@ class Course(models.Model):
     # 4. Compute and search fields, in the same order that fields declaration
 
     # 5. Constraints and onchange methods
+    _sql_constraints = [
+        ('name_description_check',
+         'CHECK(name != description)',
+         "The title of the course should not be the description"),
 
+        ('name_unique',
+         'UNIQUE(name)',
+         "The course title must be unique"),
+    ]
     # 6. CRUD Methods
 
     # 7. Action methods
