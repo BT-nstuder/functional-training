@@ -11,7 +11,9 @@
     'website': "https://github.com/BT-nstuder/functional-training",
     'category': 'Uncategorized',
     'version': '11.0.0.0.1',
-    'depends': ['base'],
+    'depends': ['base',
+                'sale',
+                ],
     'data': [
         'views/openacademy.xml',
         'views/templates.xml',
