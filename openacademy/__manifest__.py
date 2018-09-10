@@ -17,6 +17,7 @@
     'data': [
         'views/openacademy.xml',
         'views/templates.xml',
+        'views/partner.xml',
     ],
     'demo': [
         'demo/demo.xml',
