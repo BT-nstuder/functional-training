@@ -130,12 +130,24 @@
                 </calendar>
             </field>
         </record>
+
+        <record id="session_graph_view" model="ir.ui.view">
+            <field name="name">session.graph</field>
+            <field name="model">openacademy.session</field>
+            <field name="arch" type="xml">
+                <graph string="Participations by Courses">
+                    <field name="course_id" />
+                    <field name="attendees_count" type="measure" />
+                </graph>
+            </field>
+        </record>
+
         <!--window action-->
         <record id="session_list_action" model="ir.actions.act_window">
             <field name="name">Sessions</field>
             <field name="res_model">openacademy.session</field>
             <field name="view_type">form</field>
-            <field name="view_mode">tree,form,calendar</field>
+            <field name="view_mode">tree,form,calendar,graph</field>
         </record>
 
         <menuitem id="session_menu" name="Sessions" parent="openacademy_menu" action="session_list_action" />
