@@ -20,6 +20,7 @@
         'views/openacademy.xml',
         'views/templates.xml',
         'views/partner.xml',
+        'views/reports.xml',
     ],
     'demo': [
         'demo/demo.xml',
