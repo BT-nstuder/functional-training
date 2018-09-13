@@ -142,6 +142,17 @@
             </field>
         </record>
 
+        <record id="session_pivot_view" model="ir.ui.view">
+            <field name="name">session.pivot</field>
+            <field name="model">openacademy.session</field>
+            <field name="arch" type="xml">
+                <pivot string="Participations by Courses">
+                    <field name="course_id" />
+                    <field name="attendees_count" />
+                </pivot>
+            </field>
+        </record>
+
         <record id="session_kanban_view" model="ir.ui.view">
             <field name="name">session.kanban</field>
             <field name="model">openacademy.session</field>
@@ -192,7 +203,7 @@
             <field name="name">Sessions</field>
             <field name="res_model">openacademy.session</field>
             <field name="view_type">form</field>
-            <field name="view_mode">tree,form,calendar,graph,kanban</field>
+            <field name="view_mode">tree,form,calendar,graph,pivot,kanban</field>
         </record>
 
         <menuitem id="session_menu" name="Sessions" parent="openacademy_menu" action="session_list_action" />
