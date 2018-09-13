@@ -31,10 +31,10 @@
                 <form string="Session Dashboard">
                     <board style="2-1">
                         <column>
-                            <action string="Attendees by course" name="%(act_session_graph)d" height="150" width="510" />
+                            <action string="Attendees by course" name="%(act_session_graph)d" />
                             <action
                                 string="Sessions"
-                                name="%(act_session_calendar)d"/>
+                                name="%(act_session_calendar)d" />
                         </column>
                         <column>
                             <action string="Courses" name="%(act_course_list)d" />
