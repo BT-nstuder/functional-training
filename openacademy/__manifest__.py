@@ -12,6 +12,7 @@
     'category': 'Uncategorized',
     'version': '11.0.0.0.1',
     'depends': ['base',
+                'board',
                 'sale',
                 ],
     'data': [
@@ -21,6 +22,7 @@
         'views/templates.xml',
         'views/partner.xml',
         'views/reports.xml',
+        'views/session_board.xml',
     ],
     'demo': [
         'demo/demo.xml',
