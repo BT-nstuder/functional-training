@@ -12,12 +12,17 @@
     'category': 'Uncategorized',
     'version': '11.0.0.0.1',
     'depends': ['base',
+                'board',
                 'sale',
                 ],
     'data': [
+        'security/security.xml',
+        'security/ir.model.access.csv',
         'views/openacademy.xml',
         'views/templates.xml',
         'views/partner.xml',
+        'views/reports.xml',
+        'views/session_board.xml',
     ],
     'demo': [
         'demo/demo.xml',
