@@ -13,8 +13,8 @@ class Course(models.Model):
     description = fields.Text()
     active = fields.Boolean(default=True)
     active_text = fields.Char(string="Is active?", readonly=True)
-    responsible_id = fields.Many2one('res.users', ondelete='set null', string="Responsible", index=True)
-    session_ids = fields.One2many('openacademy.session', 'course_id', string="Sessions")
+    responsible_id = fields.Many2one(comodel_name='res.users', ondelete='set null', string="Responsible", index=True)
+    session_ids = fields.One2many(comodel_name='openacademy.session', inverse_name='course_id', string="Sessions")
 
     # 4. Compute and search fields, in the same order that fields declaration
     @api.onchange('active')
@@ -67,11 +67,11 @@ class Session(models.Model):
     active = fields.Boolean(default=True)
     color=fields.Integer()
 
-    instructor_id = fields.Many2one('res.partner', string="Instructor",
+    instructor_id = fields.Many2one(comodel_name='res.partner', string="Instructor",
                                     domain=['|', ('instructor', '=', True),
                                             ('category_id.name', 'ilike', "Teacher")])
-    course_id = fields.Many2one('openacademy.course', ondelete='cascade', string="Course", required=True)
-    attendee_ids = fields.Many2many('res.partner', string="Attendees")
+    course_id = fields.Many2one(comodel_name='openacademy.course', ondelete='cascade', string="Course", required=True)
+    attendee_ids = fields.Many2many(comodel_name='res.partner', string="Attendees")
 
     taken_seats = fields.Float(string="Taken seats", compute='_taken_seats')
     end_date = fields.Date(string="End Date", store=True,
