@@ -30,14 +30,15 @@
             <field name="arch" type="xml">
                 <form string="Session Dashboard">
                     <board style="2-1">
-                        <column>
-                            <action string="Attendees by course" name="%(act_session_graph)d" />
+                        <!--<column>
+                            <action string="Attendees by course" name="%(act_session_graph)d" view_mode="list" />
                             <action
-                                string="Sessions"
-                                name="%(act_session_calendar)d" />
-                        </column>
+                                string="Sessions" view_mode="calendar"
+                                name="%(act_session_calendar)d"
+                                />
+                        </column>-->
                         <column>
-                            <action string="Courses" name="%(act_course_list)d" />
+                            <action string="Courses" name="%(act_course_list)d" view_mode="list" />
                         </column>
                     </board>
                 </form>
