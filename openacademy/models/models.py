@@ -11,10 +11,23 @@ class Course(models.Model):
     # 3. Fields Declaration
     name = fields.Char(string="Title", required=True)
     description = fields.Text()
+    active = fields.Boolean(default=True)
+    active_text = fields.Char(string="Is active?", readonly=True)
     responsible_id = fields.Many2one('res.users', ondelete='set null', string="Responsible", index=True)
     session_ids = fields.One2many('openacademy.session', 'course_id', string="Sessions")
 
     # 4. Compute and search fields, in the same order that fields declaration
+    @api.onchange('active')
+    def _onchange_active(self):
+        if self.active:
+            self.active_text = "Yes, it is!"
+            self.session_ids.write({'active': True})
+        else:
+            self.active_text = "No, it isn't!"
+            self.session_ids.write({'active': False})
+
+
+
     @api.multi
     def copy(self, default=None):
         default = dict(default or {})
