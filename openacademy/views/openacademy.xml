@@ -45,6 +45,7 @@
                     <field name="name" />
                     <field name="description" />
                     <filter name="my_courses" string="My Courses" domain="[('responsible_id', '=', uid)]" />
+                    <filter name="inactive_courses" string="Inactive courses" domain="[('active', '=', False)]" />
                     <group string="Group By">
                         <filter name="by_responsible" string="Responsible" context="{'group_by': 'responsible_id'}" />
                     </group>
@@ -205,12 +206,22 @@
             </field>
         </record>
 
+        <record id="session_search_view" model="ir.ui.view">
+            <field name="name">session.search</field>
+            <field name="model">openacademy.session</field>
+            <field name="arch" type="xml">
+                <search>
+                    <filter name="inactive_sessions" string="Inactive Sessions" domain="[('active', '=', False)]"/>
+                </search>
+            </field>
+        </record>
+
         <!--window action-->
         <record id="session_list_action" model="ir.actions.act_window">
             <field name="name">Sessions</field>
             <field name="res_model">openacademy.session</field>
             <field name="view_type">form</field>
-            <field name="view_mode">tree,form,calendar,graph,pivot,kanban</field>
+            <field name="view_mode">tree,search,form,calendar,graph,pivot,kanban</field>
         </record>
 
         <menuitem id="session_menu" name="Sessions" parent="openacademy_menu" action="session_list_action" />
