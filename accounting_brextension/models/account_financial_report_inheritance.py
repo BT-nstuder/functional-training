@@ -32,6 +32,23 @@ class AccountReportExtension(models.AbstractModel):
                 vals = {'date': date_to, 'string': display_value}
             options['comparison']['periods'] = [vals]
             return options
+
+        # My extension
+        elif cmp_filter == 'budget_comparison':
+            dt_from = False
+            if options['date'].get('date_from'):
+                dt_from = datetime.strptime(options['date'].get('date_from'), "%Y-%m-%d")
+            dt_to = datetime.strptime(options['date'].get('date_to'), "%Y-%m-%d")
+            if dt_from:
+                vals = {'date_from': dt_from.strftime(DEFAULT_SERVER_DATE_FORMAT),
+                        'date_to': dt_to.strftime(DEFAULT_SERVER_DATE_FORMAT),
+                        'string': 'Budgets'
+                        }
+            else:
+                vals = {'date': dt_to.strftime(DEFAULT_SERVER_DATE_FORMAT), 'string': 'Budgets'}
+            options['comparison']['periods'].append(vals)
+            return options
+
         else:
             dt_from = False
             options_filter = options['date'].get('filter','')
@@ -66,7 +83,6 @@ class AccountReportExtension(models.AbstractModel):
                     vals = {'date_from': dt_from.strftime(DEFAULT_SERVER_DATE_FORMAT), 'date_to': dt_to.strftime(DEFAULT_SERVER_DATE_FORMAT), 'string': display_value}
                 else:
                     vals = {'date': dt_to.strftime(DEFAULT_SERVER_DATE_FORMAT), 'string': display_value}
-
 
                 options['comparison']['periods'].append(vals)
         if len(options['comparison'].get('periods', [])) > 0:
