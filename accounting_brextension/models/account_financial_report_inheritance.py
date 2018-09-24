@@ -4,7 +4,8 @@ from dateutil.relativedelta import relativedelta
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT, float_is_zero
 from odoo.tools.safe_eval import safe_eval
 from odoo import fields, models, api, _
-from odoo.addons.account_reports.models.account_financial_report import FormulaLine
+# from odoo.addons.account_reports.models.account_financial_report import FormulaLine
+
 
 class AccountReportExtension(models.AbstractModel):
     _inherit = "account.financial.html.report"
@@ -38,3 +39,120 @@ class AccountReportExtension(models.AbstractModel):
                 res['comparison']['number_period'] = 0
                 res['comparison']['periods'] = []
         return res
+
+
+class FinancialReportExtensionCalculation(models.Model):
+    _inherit = 'account.financial.html.report.line'
+
+    @api.multi
+    def get_lines(self, financial_report, currency_table, options, linesDicts):
+        # res = super(FinancialReportExtensionCalculation, self).get_lines(financial_report, currency_table,
+        #                                                                  options, linesDicts)
+        # for line in res:
+        #     print(line)
+        #     break
+        # return res
+        final_result_table = []
+        comparison_table = [options.get('date')]
+        comparison_table += options.get('comparison') and options['comparison'].get('periods', []) or []
+        currency_precision = self.env.user.company_id.currency_id.rounding
+        # build comparison table
+        for line in self:
+            res = []
+            debit_credit = len(comparison_table) == 1
+            domain_ids = {'line'}
+            k = 0
+            for period in comparison_table:
+                date_from = period.get('date_from', False)
+                date_to = period.get('date_to', False) or period.get('date', False)
+                date_from, date_to, strict_range = line.with_context(date_from=date_from,
+                                                                     date_to=date_to)._compute_date_range()
+                r = line.with_context(date_from=date_from, date_to=date_to, strict_range=strict_range)._eval_formula(
+                    financial_report, debit_credit, currency_table, linesDicts[k])
+                debit_credit = False
+                res.append(r)
+                domain_ids.update(r)
+                k += 1
+            res = line._put_columns_together(res, domain_ids)
+            if line.hide_if_zero and all(
+                    [float_is_zero(k, precision_rounding=currency_precision) for k in res['line']]):
+                continue
+            # Post-processing ; creating line dictionary, building comparison, computing total for extended, formatting
+            vals = {
+                'id': line.id,
+                'name': line.name,
+                'level': line.level,
+                'columns': [{'name': l} for l in res['line']],
+                'unfoldable': len(domain_ids) > 1 and line.show_domain != 'always',
+                'unfolded': line.id in options.get('unfolded_lines', []) or line.show_domain == 'always',
+            }
+            if line.action_id:
+                vals['action_id'] = line.action_id.id
+            domain_ids.remove('line')
+            lines = [vals]
+            groupby = line.groupby or 'aml'
+            if line.id in options.get('unfolded_lines', []) or line.show_domain == 'always':
+                if line.groupby:
+                    domain_ids = sorted(list(domain_ids), key=lambda k: line._get_gb_name(k))
+                for domain_id in domain_ids:
+                    # print("domain_id: %s" % domain_id)
+                    # print("res: %s" % res)
+                    name = line._get_gb_name(domain_id)
+                    vals = {
+                        'id': domain_id,
+                        'name': name and len(name) >= 45 and name[0:40] + '...' or name,
+                        'level': 4,
+                        'parent_id': line.id,
+                        'columns': [{'name': l} for l in res[domain_id]],
+                        'caret_options': groupby == 'account_id' and 'account.account' or groupby,
+                    }
+                    # print("values: %s" % vals)
+                    if line.financial_report_id.name == 'Aged Receivable':
+                        vals['trust'] = self.env['res.partner'].browse([domain_id]).trust
+                    lines.append(vals)
+                if domain_ids:
+                    lines.append({
+                        'id': 'total_' + str(line.id),
+                        'name': _('Total') + ' ' + line.name,
+                        'class': 'o_account_reports_domain_total',
+                        'parent_id': line.id,
+                        'columns': copy.deepcopy(lines[0]['columns']),
+                    })
+
+            for vals in lines:
+                if len(comparison_table) == 2:
+                    vals['columns'].append(line._build_cmp(vals['columns'][0]['name'], vals['columns'][1]['name']))
+                    for i in [0, 1]:
+                        vals['columns'][i] = line._format(vals['columns'][i])
+
+
+                elif options['comparison'].get('filter', False) == 'budget_comparison' and options['date'].get('date_to', False):
+                    for i in range(3):
+                        vals['columns'].pop()
+                    vals['columns'].append({'name': '300', 'class': 'number'})
+                    vals['columns'].append({'name': '900', 'class': 'number'})
+                    num = float(vals['columns'][0]['name']) - float(vals['columns'][2]['name'])
+                    vals['columns'].append({'name': num, 'class': 'number'})
+
+
+                else:
+                    vals['columns'] = [line._format(v) for v in vals['columns']]
+                if not line.formulas:
+                    vals['columns'] = [{'name': ''} for k in vals['columns']]
+            if len(lines) == 1:
+                new_lines = line.children_ids.get_lines(financial_report, currency_table, options, linesDicts)
+                if new_lines and line.level > 0 and line.formulas:
+                    divided_lines = self._divide_line(lines[0])
+                    result = [divided_lines[0]] + new_lines + [divided_lines[1]]
+                else:
+                    result = []
+                    if line.level > 0:
+                        result += lines
+                    result += new_lines
+                    if line.level <= 0:
+                        result += lines
+            else:
+                result = lines
+            final_result_table += result
+        return final_result_table
+
