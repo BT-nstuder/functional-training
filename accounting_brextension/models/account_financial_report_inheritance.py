@@ -24,12 +24,15 @@ class AccountReportExtension(models.AbstractModel):
                     dt_from = datetime.strptime(options['date'].get('date_from'), "%Y-%m-%d")
                 dt_to = datetime.strptime(dt_to, "%Y-%m-%d")
                 if dt_from:
+                    bid = 0
                     for column in columns:
                         vals = {'date_from': dt_from.strftime(DEFAULT_SERVER_DATE_FORMAT),
                                 'date_to': dt_to.strftime(DEFAULT_SERVER_DATE_FORMAT),
-                                'string': column
+                                'string': column,
+                                'budget_id': bid
                                 }
                         res['comparison']['periods'].append(vals)
+                        bid += 1
                 else:
                     for column in columns:
                         vals = {'date': dt_to.strftime(DEFAULT_SERVER_DATE_FORMAT), 'string': column}
@@ -62,13 +65,26 @@ class FinancialReportExtensionCalculation(models.Model):
             debit_credit = len(comparison_table) == 1
             domain_ids = {'line'}
             k = 0
+
+            acc_ids = None # Entspricht der Zahl, wenn ein Konto gebraucht wurde
+            budget_set_amount = None # Entspricht der bis jetzt in der Zeile gesetzten budget amount
+            budget_theoretical_amount = None # Entspricht der theoretische Wert von dem Budget in dem vordefinierten Zeitrahmen
+
+
             for period in comparison_table:
                 date_from = period.get('date_from', False)
                 date_to = period.get('date_to', False) or period.get('date', False)
                 date_from, date_to, strict_range = line.with_context(date_from=date_from,
                                                                      date_to=date_to)._compute_date_range()
-                r = line.with_context(date_from=date_from, date_to=date_to, strict_range=strict_range)._eval_formula(
-                    financial_report, debit_credit, currency_table, linesDicts[k])
+                # Check if a budget is set
+                if period['string'].startswith('Budget'):
+                    r = line.with_context(date_from=date_from, date_to=date_to, strict_range=strict_range)._eval_formula_budget(
+                        financial_report, debit_credit, currency_table, linesDicts[k], acc_ids, period['budget_id'])
+                else:
+                    r = line.with_context(date_from=date_from, date_to=date_to, strict_range=strict_range)._eval_formula(
+                        financial_report, debit_credit, currency_table, linesDicts[k])
+                if len(list(r.keys())) > 1:
+                    acc_ids = list(r.keys())
                 debit_credit = False
                 res.append(r)
                 domain_ids.update(r)
@@ -125,15 +141,15 @@ class FinancialReportExtensionCalculation(models.Model):
                     for i in [0, 1]:
                         vals['columns'][i] = line._format(vals['columns'][i])
 
-
-                elif options['comparison'].get('filter', False) == 'budget_comparison' and options['date'].get('date_to', False):
-                    for i in range(3):
-                        vals['columns'].pop()
-                    vals['columns'].append({'name': '300', 'class': 'number'})
-                    vals['columns'].append({'name': '900', 'class': 'number'})
-                    num = float(vals['columns'][0]['name']) - float(vals['columns'][2]['name'])
-                    vals['columns'].append({'name': num, 'class': 'number'})
-
+                # Studer Nicola Extension
+                # elif options['comparison'].get('filter', False) == 'budget_comparison' and options['date'].get('date_to', False):
+                #     for i in range(3):
+                #         vals['columns'].pop()
+                #     vals['columns'].append({'name': '300', 'class': 'number'})
+                #     vals['columns'].append({'name': '900', 'class': 'number'})
+                #     num = float(vals['columns'][0]['name']) - float(vals['columns'][2]['name'])
+                #     vals['columns'].append({'name': num, 'class': 'number'})
+                # Studer Nicola Extension
 
                 else:
                     vals['columns'] = [line._format(v) for v in vals['columns']]
@@ -156,3 +172,19 @@ class FinancialReportExtensionCalculation(models.Model):
             final_result_table += result
         return final_result_table
 
+    def _eval_formula_budget(self, financial_report, debit_credit, currency_table, linesDict, acc_ids, budget_id):
+        if acc_ids:
+            res = {}
+            balance = 0
+            for key in acc_ids:
+                if str(key).isdigit():
+                    if budget_id == 0:
+                        res.update({key: {'balance': 650.0, 'amount_residual': 0.0, 'debit': 0.0, 'credit': 651.0}})
+                    elif budget_id == 1:
+                        res.update({key: {'balance': 750.0, 'amount_residual': 0.0, 'debit': 0.0, 'credit': 751.0}})
+                    else:
+                        res.update({key: {'balance': 850.0, 'amount_residual': 0.0, 'debit': 0.0, 'credit': 851.0}})
+                    balance += res[key]['balance']
+            res.update({'line': {'balance': balance}})
+            return res
+        return {'line': {'balance': 0.00}}
