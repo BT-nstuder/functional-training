@@ -49,12 +49,6 @@ class FinancialReportExtensionCalculation(models.Model):
 
     @api.multi
     def get_lines(self, financial_report, currency_table, options, linesDicts):
-        # res = super(FinancialReportExtensionCalculation, self).get_lines(financial_report, currency_table,
-        #                                                                  options, linesDicts)
-        # for line in res:
-        #     print(line)
-        #     break
-        # return res
         final_result_table = []
         comparison_table = [options.get('date')]
         comparison_table += options.get('comparison') and options['comparison'].get('periods', []) or []
@@ -95,7 +89,7 @@ class FinancialReportExtensionCalculation(models.Model):
                                 if str(key).isdigit():
                                     budget_set_amount = budget_set_amounts[key]['balance']
                                     budget_origin_amount = budget_origin_amounts[key]['balance']
-                                    res_diff.update({key: {'balance': budget_set_amount + budget_origin_amount, 'amount_residual': 0.0, 'debit': 0.0,
+                                    res_diff.update({key: {'balance': budget_set_amount - budget_origin_amount, 'amount_residual': 0.0, 'debit': 0.0,
                                                            'credit': 651.0}})
                                     balance += res_diff[key]['balance']
                             res_diff.update({'line': {'balance': balance}})
@@ -177,17 +171,6 @@ class FinancialReportExtensionCalculation(models.Model):
                     vals['columns'].append(line._build_cmp(vals['columns'][0]['name'], vals['columns'][1]['name']))
                     for i in [0, 1]:
                         vals['columns'][i] = line._format(vals['columns'][i])
-
-                # Studer Nicola Extension
-                # elif options['comparison'].get('filter', False) == 'budget_comparison' and options['date'].get('date_to', False):
-                #     for i in range(3):
-                #         vals['columns'].pop()
-                #     vals['columns'].append({'name': '300', 'class': 'number'})
-                #     vals['columns'].append({'name': '900', 'class': 'number'})
-                #     num = float(vals['columns'][0]['name']) - float(vals['columns'][2]['name'])
-                #     vals['columns'].append({'name': num, 'class': 'number'})
-                # Studer Nicola Extension
-
                 else:
                     vals['columns'] = [line._format(v) for v in vals['columns']]
                 if not line.formulas:
@@ -215,14 +198,21 @@ class FinancialReportExtensionCalculation(models.Model):
             balance = 0
             for key in acc_ids:
                 if str(key).isdigit():
+                    budgetary_position_id = self.env['account.budget.post'].search([('account_ids', '=', key)], limit=1).id
+                    budget_obj = self.env['crossovered.budget.lines'].search([('general_budget_id', '=', budgetary_position_id)], limit=1)
+                    planned_amount = budget_obj.planned_amount
                     if budget_id == 1:
-                        res.update({key: {'balance': 650.0, 'amount_residual': 0.0, 'debit': 0.0, 'credit': 651.0}})
+                        date_to = datetime.strptime(self.env.context['date_to'], "%Y-%m-%d")
+                        date_from = datetime.strptime(self.env.context['date_from'], "%Y-%m-%d")
+                        date_difference = (date_to - date_from).days + 1
+                        days_in_year = (date(date_to.year, 12, 31)-date(date_from.year, 1, 1)).days + 1
+                        # Calculation of the theoretical amount! With start_date and end_date
+                        balance = planned_amount * date_difference / days_in_year
+                        res.update({key: {'balance': balance}})
                     elif budget_id == 2:
-                        res.update({key: {'balance': 750.0, 'amount_residual': 0.0, 'debit': 0.0, 'credit': 751.0}})
-                    else:
-                        res.update({key: {'balance': 850.0, 'amount_residual': 0.0, 'debit': 0.0, 'credit': 851.0}})
+                        # Calculation of the set amount!
+                        res.update({key: {'balance': planned_amount}})
                     balance += res[key]['balance']
             res.update({'line': {'balance': balance}})
             return res
         return {'line': {'balance': 0.00}}
-
