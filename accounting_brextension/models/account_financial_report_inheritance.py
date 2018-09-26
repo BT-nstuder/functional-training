@@ -1,10 +1,7 @@
 import copy
 from datetime import timedelta, datetime, date
-from dateutil.relativedelta import relativedelta
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT, float_is_zero
-from odoo.tools.safe_eval import safe_eval
 from odoo import fields, models, api, _
-# from odoo.addons.account_reports.models.account_financial_report import FormulaLine
 
 
 class AccountReportExtension(models.AbstractModel):
