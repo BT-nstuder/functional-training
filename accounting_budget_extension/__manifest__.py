@@ -1,8 +1,9 @@
 {
-    'name': "Budget Report Extension",
+    'name': "Budget Extension",
     'summary': """Add budget extensions for reports""",
     'description': """
-        Budget Report Extension module for extending reports:
+        Budget Extension module for extending reports:
+            - Create new extended budgets
             - Include budgets in the profit & loss
             - Dynamic calculations for time periods
     """,
